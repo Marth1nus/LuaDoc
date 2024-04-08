@@ -44,6 +44,9 @@ lua-5.4.6/src/lzio.c
 include_directories(lua PUBLIC lua-5.4.6/src)
 
 
-add_executable(LuaDoc main.cpp)
+add_executable(LuaDoc 
+  main.cpp
+  doc.cpp
+)
 target_compile_features(LuaDoc PUBLIC cxx_std_23)
 target_link_libraries(LuaDoc PRIVATE lua)

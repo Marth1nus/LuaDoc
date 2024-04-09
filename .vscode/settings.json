@@ -4,6 +4,7 @@
     "dostring",
     "getfield",
     "gettop",
+    "hwnd",
     "pushglobaltable",
     "pushlstring",
     "pushnil",

@@ -43,7 +43,6 @@ lua-5.4.6/src/lzio.c
 )
 include_directories(lua PUBLIC lua-5.4.6/src)
 
-
 add_executable(LuaDoc 
   main.cpp
   doc.cpp

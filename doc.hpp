@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include <filesystem>
 #include <vector>
@@ -55,3 +57,5 @@ namespace doc
     friend bool push(lua_State *L, doc const &input);
   };
 } // namespace doc
+
+#include "formatters.hpp"

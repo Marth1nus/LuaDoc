@@ -13,12 +13,7 @@ int main()
   lua_close(L);
   std::println("src doc: {}", src_doc);
 
-  std::string cpp_doc{};
-  auto out = std::back_inserter(cpp_doc);
-  out = std::format_to(out, "{{ icons = {{ ");
-  for (auto &icon : d.icons)
-    out = std::format_to(out, "{{ title = \"{}\", icon_path = \"{}\", }}, ", icon.title, icon.icon_path.string());
-  out = std::format_to(out, "}}, }} ");
+  auto cpp_doc = std::format("{}", d);
   std::println("cpp doc: {}", cpp_doc);
 
   L = luaL_newstate();

@@ -46,6 +46,7 @@ include_directories(lua PUBLIC lua-5.4.6/src)
 add_executable(LuaDoc 
   main.cpp
   doc.cpp
+  formatters.cpp
 )
 target_compile_features(LuaDoc PUBLIC cxx_std_23)
 target_link_libraries(LuaDoc PRIVATE lua)

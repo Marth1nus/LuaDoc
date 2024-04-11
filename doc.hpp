@@ -8,8 +8,8 @@ struct HWND__;
 typedef HWND__ *HWND;
 
 struct lua_State;
-auto lua_tocode(lua_State *L, int idx, std::output_iterator<char> auto out) noexcept -> decltype(out);
-auto lua_tocode(lua_State *L, int idx) noexcept -> std::string;
+/*         */ auto lua_tocode(lua_State *L, int idx, std::output_iterator<char> auto out) noexcept -> decltype(out);
+[[nodiscard]] auto lua_tocode(lua_State *L, int idx) noexcept -> std::string;
 namespace doc
 {
   using std::string,

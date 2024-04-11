@@ -7,7 +7,28 @@
 
 using namespace std::literals;
 
-inline auto lua_tolstring(lua_State *L, int idx) noexcept -> std::string_view
+inline constexpr auto quoted(std::output_iterator<char> auto out, std::string_view str) noexcept -> decltype(out)
+{
+  using namespace std::literals;
+  *out++ = '\"';
+  for (auto c : str)
+  {
+    if ("\"\'"sv.contains(c))
+      *out++ = '\\';
+    *out++ = c;
+  }
+  *out++ = '\"';
+  return out;
+}
+
+[[nodiscard]] inline constexpr auto quoted(std::string_view str) noexcept -> std::string
+{
+  std::string res{};
+  quoted(std::back_inserter(res), str);
+  return res;
+}
+
+[[nodiscard]] inline auto lua_tolstring(lua_State *L, int idx) noexcept -> std::string_view
 {
   size_t clen{};
   auto cstr = lua_tolstring(L, idx, &clen);
@@ -30,17 +51,7 @@ auto lua_tocode(lua_State *L, int idx, std::output_iterator<char> auto out) noex
   case LUA_TNUMBER:
     return std::format_to(out, "{}", lua_tonumberx(L, idx, 0));
   case LUA_TSTRING:
-  {
-    *out++ = '"';
-    for (auto c : lua_tolstring(L, idx))
-    {
-      if ("\"\'\\"sv.contains(c))
-        *out++ = '\\';
-      *out++ = c;
-    }
-    *out++ = '"';
-    return out;
-  }
+    return quoted(out, lua_tolstring(L, idx));
   case LUA_TTABLE:
   {
     idx += idx < 0 ? lua_gettop(L) + 1 : 0;

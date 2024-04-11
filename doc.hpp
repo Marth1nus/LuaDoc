@@ -16,9 +16,6 @@ namespace doc
       std::filesystem::path,
       std::vector;
 
-  /*         */ auto quoted(std::output_iterator<char> auto out, std::string_view str, char quote = '\"', char escape = '\\') noexcept -> decltype(out);
-  [[nodiscard]] auto quoted(std::string_view str, char quote = '\"', char escape = '\\') noexcept -> std::string;
-
   struct icon
   {
     string title{};

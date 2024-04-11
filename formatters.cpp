@@ -4,11 +4,11 @@ auto std::formatter<doc::icon>::format(doc::icon const &val, std::format_context
 {
   auto str = std::format(
       "{{ "
-      "title = {}, "
-      "icon_path = {}, "
+      "title = {:?}, "
+      "icon_path = {:?}, "
       "}}",
-      doc::quoted(val.title),
-      doc::quoted(val.icon_path.string()));
+      val.title,
+      val.icon_path.string());
   return std::formatter<std::string_view>::format(str, ctx);
 }
 

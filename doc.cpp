@@ -30,7 +30,7 @@ auto lua_tocode(lua_State *L, int idx, std::output_iterator<char> auto out) noex
   case LUA_TNUMBER:
     return std::format_to(out, "{}", lua_tonumberx(L, idx, 0));
   case LUA_TSTRING:
-    return std::format_to(out, "{}", doc::quoted(lua_tolstring(L, idx)));
+    return std::format_to(out, "{:?}", lua_tolstring(L, idx));
   case LUA_TTABLE:
   {
     idx += idx < 0 ? lua_gettop(L) + 1 : 0;
@@ -57,26 +57,6 @@ auto lua_tocode(lua_State *L, int idx) noexcept -> std::string
 {
   std::string res{};
   lua_tocode(L, idx, std::back_inserter(res));
-  return res;
-}
-
-auto doc::quoted(std::output_iterator<char> auto out, std::string_view str, char quote, char escape) noexcept -> decltype(out)
-{
-  *out++ = quote;
-  for (auto c : str)
-  {
-    if (c == quote)
-      *out++ = escape;
-    *out++ = c;
-  }
-  *out++ = quote;
-  return out;
-}
-
-auto doc::quoted(std::string_view str, char quote, char escape) noexcept -> std::string
-{
-  std::string res{};
-  ::doc::quoted(std::back_inserter(res), str, quote, escape);
   return res;
 }
 

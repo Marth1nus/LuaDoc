@@ -7,27 +7,6 @@
 
 using namespace std::literals;
 
-inline constexpr auto quoted(std::output_iterator<char> auto out, std::string_view str) noexcept -> decltype(out)
-{
-  using namespace std::literals;
-  *out++ = '\"';
-  for (auto c : str)
-  {
-    if ("\"\'"sv.contains(c))
-      *out++ = '\\';
-    *out++ = c;
-  }
-  *out++ = '\"';
-  return out;
-}
-
-[[nodiscard]] inline constexpr auto quoted(std::string_view str) noexcept -> std::string
-{
-  std::string res{};
-  quoted(std::back_inserter(res), str);
-  return res;
-}
-
 [[nodiscard]] inline auto lua_tolstring(lua_State *L, int idx) noexcept -> std::string_view
 {
   size_t clen{};
@@ -51,26 +30,26 @@ auto lua_tocode(lua_State *L, int idx, std::output_iterator<char> auto out) noex
   case LUA_TNUMBER:
     return std::format_to(out, "{}", lua_tonumberx(L, idx, 0));
   case LUA_TSTRING:
-    return quoted(out, lua_tolstring(L, idx));
+    return std::format_to(out, "{}", doc::quoted(lua_tolstring(L, idx)));
   case LUA_TTABLE:
   {
     idx += idx < 0 ? lua_gettop(L) + 1 : 0;
-    out = std::format_to(out, "{}", "{ "sv);
+    out = std::format_to(out, "{{ ");
     for (lua_pushnil(L); lua_next(L, idx); lua_pop(L, 1))
     {
       if (lua_type(L, -2) == LUA_TSTRING)
       {
         out = std::format_to(out, "{}", lua_tolstring(L, -2));
-        out = std::format_to(out, "{}", " = "sv);
+        out = std::format_to(out, " = ");
       }
       out = lua_tocode(L, -1, out);
-      out = std::format_to(out, "{}", ", "sv);
+      out = std::format_to(out, ", ");
     }
-    out = std::format_to(out, "{}", "}"sv);
+    out = std::format_to(out, "}}");
     return out;
   }
   default:
-    return std::format_to(out, "{}", "nil"sv);
+    return std::format_to(out, "nil");
   }
 }
 
@@ -78,6 +57,26 @@ auto lua_tocode(lua_State *L, int idx) noexcept -> std::string
 {
   std::string res{};
   lua_tocode(L, idx, std::back_inserter(res));
+  return res;
+}
+
+auto doc::quoted(std::output_iterator<char> auto out, std::string_view str, char quote, char escape) noexcept -> decltype(out)
+{
+  *out++ = quote;
+  for (auto c : str)
+  {
+    if (c == quote)
+      *out++ = escape;
+    *out++ = c;
+  }
+  *out++ = quote;
+  return out;
+}
+
+auto doc::quoted(std::string_view str, char quote, char escape) noexcept -> std::string
+{
+  std::string res{};
+  ::doc::quoted(std::back_inserter(res), str, quote, escape);
   return res;
 }
 

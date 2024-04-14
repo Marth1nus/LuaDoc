@@ -1,10 +1,18 @@
 {
   "cSpell.words": [
+    "CHILDWINDOW",
     "createtable",
     "dostring",
     "getfield",
     "gettop",
+    "HREDRAW",
     "hwnd",
+    "LPARAM",
+    "lpfn",
+    "lpsz",
+    "LRESULT",
+    "OVERLAPPEDWINDOW",
+    "PAINTSTRUCT",
     "pushglobaltable",
     "pushlstring",
     "pushnil",
@@ -17,8 +25,12 @@
     "toboolean",
     "tolstring",
     "tonumberx",
+    "TOOLWINDOW",
     "tostringview",
-    "TTABLE"
+    "TTABLE",
+    "VREDRAW",
+    "WNDCLASSEXW",
+    "WPARAM"
   ],
   "files.associations": {
     "variant": "cpp",

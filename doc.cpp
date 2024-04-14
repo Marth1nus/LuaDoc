@@ -1,11 +1,12 @@
 #include "doc.hpp"
-#include <lua.hpp>
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
 
 #include <format>
 
 using namespace std::literals;
+
+// ===========
+// === LUA ===
+// ===========
 
 [[nodiscard]] inline auto lua_tolstring(lua_State *L, int idx) noexcept -> std::string_view
 {
@@ -79,7 +80,7 @@ bool doc::pull(lua_State *L, int idx, icon &out)
 
 bool doc::push(lua_State *L, icon const &in)
 {
-  lua_createtable(L, 0, 1);
+  lua_createtable(L, 0, 2);
 
   lua_pushlstring(L, in.title);
   lua_setfield(L, -2, "title");
@@ -114,4 +115,138 @@ bool doc::push(lua_State *L, doc const &in)
   lua_setfield(L, -2, "icons");
 
   return true;
+}
+
+// ===============
+// === WINDOWS ===
+// ===============
+
+LRESULT CALLBACK doc_icon_window_procedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+  switch (msg)
+  {
+  case WM_DESTROY:
+  {
+    PostQuitMessage(0);
+    return 0;
+  }
+  case WM_PAINT:
+  {
+    PAINTSTRUCT ps{};
+    auto hdc = BeginPaint(hwnd, &ps);
+    /* Paint Here */
+    EndPaint(hwnd, &ps);
+    return 0;
+  }
+  default:
+    return DefWindowProc(hwnd, msg, wparam, lparam);
+  }
+}
+
+auto doc_icon_window_register_class()
+{
+  WNDCLASSEXW const wc{
+      .cbSize /*       */ = sizeof(WNDCLASSEXW),
+      .style /*        */ = CS_VREDRAW bitor CS_HREDRAW,
+      .lpfnWndProc /*  */ = doc_icon_window_procedure,
+      .cbClsExtra /*   */ = 0,
+      .cbWndExtra /*   */ = 0,
+      .hInstance /*    */ = GetModuleHandle(nullptr),
+      .hIcon /*        */ = nullptr,
+      .hCursor /*      */ = LoadCursor(nullptr, IDC_HAND),
+      .hbrBackground /**/ = nullptr,
+      .lpszMenuName /* */ = nullptr,
+      .lpszClassName /**/ = L"doc::icon",
+      .hIconSm /*      */ = nullptr,
+  };
+  return RegisterClassExW(&wc);
+}
+
+void doc::icon::load(HWND parent_window)
+{
+  if (!hwnd)
+    hwnd = {
+        CreateWindowExW(
+            0,
+            L"doc::icon",
+            0,
+            WS_CHILDWINDOW,
+            0,
+            0,
+            0,
+            0,
+            parent_window,
+            0,
+            GetModuleHandleW(0),
+            0),
+        DestroyWindow};
+}
+
+void doc::icon::update()
+{
+}
+
+LRESULT CALLBACK doc_icon_window_procedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
+{
+  switch (msg)
+  {
+  case WM_DESTROY:
+  {
+    PostQuitMessage(0);
+    return 0;
+  }
+  case WM_PAINT:
+  {
+    PAINTSTRUCT ps{};
+    auto hdc = BeginPaint(hwnd, &ps);
+    /* Paint Here */
+    EndPaint(hwnd, &ps);
+    return 0;
+  }
+  default:
+    return DefWindowProc(hwnd, msg, wparam, lparam);
+  }
+}
+
+auto doc_doc_window_register_class()
+{
+  WNDCLASSEXW wc{
+      .cbSize /*       */ = sizeof(wc),
+      .style /*        */ = WS_EX_OVERLAPPEDWINDOW,
+      .lpfnWndProc /*  */ = doc_icon_window_procedure,
+      .cbClsExtra /*   */ = 0,
+      .cbWndExtra /*   */ = 0,
+      .hInstance /*    */ = GetModuleHandle(nullptr),
+      .hIcon /*        */ = nullptr,
+      .hCursor /*      */ = LoadCursor(nullptr, IDC_HAND),
+      .hbrBackground /**/ = nullptr,
+      .lpszMenuName /* */ = nullptr,
+      .lpszClassName /**/ = L"doc::doc",
+      .hIconSm /*      */ = nullptr,
+  };
+  return RegisterClassExW(&wc);
+}
+
+void doc::doc::load(HWND parent_window)
+{
+  if (!hwnd)
+    hwnd = {
+        CreateWindowExW(
+            0,
+            L"doc::doc",
+            0,
+            WS_EX_TOOLWINDOW,
+            0,
+            0,
+            0,
+            0,
+            parent_window,
+            0,
+            GetModuleHandleW(0),
+            0),
+        DestroyWindow};
+}
+
+void doc::doc::update()
+{
 }

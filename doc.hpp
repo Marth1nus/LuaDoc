@@ -1,13 +1,13 @@
 #pragma once
 
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <lua.hpp>
+
 #include <string>
 #include <filesystem>
 #include <vector>
 
-struct HWND__;
-typedef HWND__ *HWND;
-
-struct lua_State;
 /*         */ auto lua_tocode(lua_State *L, int idx, std::output_iterator<char> auto out) noexcept -> decltype(out);
 [[nodiscard]] auto lua_tocode(lua_State *L, int idx) noexcept -> std::string;
 namespace doc
@@ -16,12 +16,18 @@ namespace doc
       std::filesystem::path,
       std::vector;
 
+  using shared_HWND = std::shared_ptr<std::remove_pointer_t<HWND>>;
+
   struct icon
   {
     string title{};
     path icon_path{};
 
-    HWND hwnd{};
+    shared_HWND hwnd{};
+
+    struct update_info;
+    void load(HWND parent_window=nullptr);
+    void update();
 
     /// @brief Copy the value at idx on the lua stack into an icon object
     /// @param L
@@ -41,7 +47,10 @@ namespace doc
   {
     vector<icon> icons{};
 
-    HWND hwnd{};
+    shared_HWND hwnd{};
+
+    void load(HWND parent_window=nullptr);
+    void update();
 
     /// @brief Copy the value at idx on the lua stack into a doc object
     /// @param L
@@ -55,6 +64,11 @@ namespace doc
     /// @param input
     /// @return
     friend bool push(lua_State *L, doc const &input);
+  };
+
+  struct icon::update_info
+  {
+    doc &doc;
   };
 } // namespace doc
 
